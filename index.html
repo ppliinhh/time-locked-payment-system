@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Time-Locked Payment Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Scheduled Payment Release System</p>
+          <h1>Time-Locked ETH Payment Dashboard</h1>
+          <p class="hero-copy">
+            Monitor locked wallets, release status, and transaction history
+            from one unified dashboard.
+          </p>
+          <div class="hero-meta">
+            <div class="hero-meta__item">
+              <span class="hero-meta__label">Settlement Mode</span>
+              <strong>Time-Locked Vault</strong>
+            </div>
+            <div class="hero-meta__item">
+              <span class="hero-meta__label">Security Signal</span>
+              <strong>Delayed Release</strong>
+            </div>
+            <div class="hero-meta__item">
+              <span class="hero-meta__label">Network Flow</span>
+              <strong>Wallet to Beneficiary</strong>
+            </div>
+          </div>
+        </div>
+
+        <section class="wallet-panel">
+          <div class="wallet-panel__label">Connect Wallet</div>
+          <button id="connectWalletButton" class="button button--primary" type="button">
+            Connect MetaMask
+          </button>
+          <div class="wallet-address" id="walletAddress">Wallet not connected</div>
+          <div class="trust-line">
+            <span class="trust-line__dot"></span>
+            Funds remain locked until the release timestamp is reached.
+          </div>
+        </section>
+      </header>
+
+      <main class="layout">
+        <section class="panel panel--form">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Create Scheduled Payment</p>
+              <h2>Create a new scheduled payment</h2>
+            </div>
+            <div class="badge">UI Layer</div>
+          </div>
+
+          <form id="paymentForm" class="payment-form">
+            <label>
+              <span>Beneficiary Address</span>
+              <input
+                id="beneficiary"
+                name="beneficiary"
+                type="text"
+                placeholder="0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+                required
+              />
+            </label>
+
+            <div class="form-grid">
+              <label>
+                <span>ETH Amount</span>
+                <input
+                  id="amount"
+                  name="amount"
+                  type="number"
+                  min="0.0000001"
+                  step="0.0000001"
+                  placeholder="0.50"
+                  required
+                />
+              </label>
+
+              <label>
+                <span>Lock Duration (seconds)</span>
+                <input
+                  id="duration"
+                  name="duration"
+                  type="number"
+                  min="10"
+                  step="1"
+                  placeholder="120"
+                  required
+                />
+              </label>
+            </div>
+
+            <div class="preview-card">
+              <p class="preview-card__label">Preview</p>
+              <div class="preview-grid">
+                <div>
+                  <span class="preview-grid__name">Status</span>
+                  <strong id="previewStatus">Locked</strong>
+                </div>
+                <div>
+                  <span class="preview-grid__name">Unlock Time</span>
+                  <strong id="previewUnlock">--/--/---- --:--:--</strong>
+                </div>
+                <div>
+                  <span class="preview-grid__name">Countdown</span>
+                  <strong id="previewCountdown">00:00:00</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="button button--primary" type="submit">
+                Create Payment
+              </button>
+              <button class="button button--ghost" type="reset">Reset</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel panel--summary">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Dashboard Snapshot</p>
+              <h2>Quick overview</h2>
+            </div>
+          </div>
+
+          <div class="stat-grid">
+            <article class="stat-card">
+              <span>Total wallets created</span>
+              <strong id="totalWallets">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Locked</span>
+              <strong id="lockedCount">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Ready to Withdraw</span>
+              <strong id="readyCount">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Completed</span>
+              <strong id="completedCount">0</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel panel--table">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Payment Dashboard</p>
+              <h2>Scheduled payment wallets</h2>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Wallet Address</th>
+                  <th>Beneficiary</th>
+                  <th>Balance</th>
+                  <th>Unlock Time</th>
+                  <th>Countdown</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="walletTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel panel--history">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Transaction History</p>
+              <h2>Transaction history</h2>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Type</th>
+                  <th>Wallet</th>
+                  <th>Amount</th>
+                  <th>Transaction Hash</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="emptyStateTemplate">
+      <tr>
+        <td colspan="7" class="empty-state">No scheduled payments yet.</td>
+      </tr>
+    </template><script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.umd.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
